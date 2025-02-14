@@ -5,28 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Poker Game</title>
     <style>
-        body { text-align: center; font-family: Arial, sans-serif; }
-        .card { display: inline-block; width: 50px; height: 70px; margin: 5px; border: 1px solid black; text-align: center; line-height: 70px; font-size: 20px; background: white; }
-        .button { padding: 10px 20px; font-size: 16px; margin: 5px; cursor: pointer; }
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #2c3e50;
+            color: white;
+        }
+        .card {
+            display: inline-block;
+            width: 60px;
+            height: 90px;
+            margin: 5px;
+            border-radius: 8px;
+            border: 2px solid white;
+            text-align: center;
+            line-height: 90px;
+            font-size: 24px;
+            background-color: white;
+            color: black;
+            font-weight: bold;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        .button {
+            padding: 12px 24px;
+            font-size: 18px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #27ae60;
+            color: white;
+            font-weight: bold;
+        }
+        .button:hover {
+            background-color: #219150;
+        }
+        #game-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 20px;
+            box-shadow: 4px 4px 20px rgba(255, 255, 255, 0.2);
+        }
     </style>
 </head>
 <body>
-    <h1>Simple Poker Game</h1>
-    <p>Your Hand:</p>
-    <div id="player-hand"></div>
-    <p>Opponent's Hand:</p>
-    <div id="opponent-hand"></div>
-    <p>Community Cards:</p>
-    <div id="community-cards"></div>
-    <br>
-    <p>Your Bet: <input type="number" id="bet-amount" value="10" min="1"> <button class="button" onclick="placeBet()">💰 Bet</button></p>
-    <p>Pot: <span id="pot">0</span></p>
-    <br>
-    <button class="button" onclick="dealInitialCards()">🎴 Deal First 3 Cards</button>
-    <button class="button" onclick="dealNextCards()" disabled>🎴 Deal Next 2 Cards</button>
-    <button class="button" onclick="determineWinner()">🏆 Show Winner</button>
-    <button class="button" onclick="fold()">🚪 Fold</button>
-    <p id="result"></p>
+    <h1>♠ Poker Game ♣</h1>
+    <div id="game-container">
+        <p>Your Hand:</p>
+        <div id="player-hand"></div>
+        <p>Opponent's Hand:</p>
+        <div id="opponent-hand"></div>
+        <p>Community Cards:</p>
+        <div id="community-cards"></div>
+        <br>
+        <p>Your Bet: <input type="number" id="bet-amount" value="10" min="1"> <button class="button" onclick="placeBet()">💰 Bet</button></p>
+        <p>Pot: <span id="pot">0</span></p>
+        <br>
+        <button class="button" onclick="dealInitialCards()">🎴 Deal First 3 Cards</button>
+        <button class="button" onclick="dealNextCards()" disabled>🎴 Deal Next 2 Cards</button>
+        <button class="button" onclick="determineWinner()">🏆 Show Winner</button>
+        <button class="button" onclick="fold()">🚪 Fold</button>
+        <p id="result"></p>
+    </div>
 
     <script>
         let deck = [];
@@ -79,34 +121,6 @@
                 pot += bet;
                 document.getElementById("pot").innerText = pot;
             }
-        }
-
-        function determineWinner() {
-            let playerBestHand = evaluateHand([...playerHand, ...communityCards]);
-            let opponentBestHand = evaluateHand([...opponentHand, ...communityCards]);
-            
-            if (playerBestHand > opponentBestHand) {
-                document.getElementById("result").innerText = "🏆 You win!";
-            } else if (playerBestHand < opponentBestHand) {
-                document.getElementById("result").innerText = "😢 Opponent wins!";
-            } else {
-                document.getElementById("result").innerText = "🤝 It's a tie!";
-            }
-        }
-
-        function evaluateHand(cards) {
-            let values = cards.map(card => card.value);
-            let uniqueValues = [...new Set(values)];
-            let pairs = uniqueValues.filter(value => values.filter(v => v === value).length === 2).length;
-            let triples = uniqueValues.filter(value => values.filter(v => v === value).length === 3).length;
-            let quads = uniqueValues.filter(value => values.filter(v => v === value).length === 4).length;
-            
-            if (quads) return 7; // Four of a kind
-            if (triples && pairs) return 6; // Full house
-            if (triples) return 3; // Three of a kind
-            if (pairs === 2) return 2; // Two pair
-            if (pairs === 1) return 1; // One pair
-            return 0; // High card
         }
     </script>
 </body>
