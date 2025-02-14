@@ -14,17 +14,26 @@
     <h1>Simple Poker Game</h1>
     <p>Your Hand:</p>
     <div id="player-hand"></div>
+    <p>Opponent's Hand:</p>
+    <div id="opponent-hand"></div>
     <p>Community Cards:</p>
     <div id="community-cards"></div>
     <br>
-    <button class="button" onclick="dealCards()">🎴 Deal Cards</button>
+    <p>Your Bet: <input type="number" id="bet-amount" value="10" min="1"> <button class="button" onclick="placeBet()">💰 Bet</button></p>
+    <p>Pot: <span id="pot">0</span></p>
+    <br>
+    <button class="button" onclick="dealInitialCards()">🎴 Deal First 3 Cards</button>
+    <button class="button" onclick="dealNextCards()" disabled>🎴 Deal Next 2 Cards</button>
+    <button class="button" onclick="determineWinner()">🏆 Show Winner</button>
     <button class="button" onclick="fold()">🚪 Fold</button>
     <p id="result"></p>
 
     <script>
         let deck = [];
         let playerHand = [];
+        let opponentHand = [];
         let communityCards = [];
+        let pot = 0;
 
         function createDeck() {
             let suits = ['♠', '♣', '♦', '♥'];
@@ -38,21 +47,66 @@
             deck = deck.sort(() => Math.random() - 0.5);
         }
 
-        function dealCards() {
+        function dealInitialCards() {
             createDeck();
             playerHand = [deck.pop(), deck.pop()];
-            communityCards = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
+            opponentHand = [deck.pop(), deck.pop()];
+            communityCards = [deck.pop(), deck.pop(), deck.pop()];
             displayCards();
             document.getElementById("result").innerText = "";
+            document.querySelector("button[onclick='dealNextCards()']").disabled = false;
+        }
+
+        function dealNextCards() {
+            communityCards.push(deck.pop(), deck.pop());
+            displayCards();
+            document.querySelector("button[onclick='dealNextCards()']").disabled = true;
         }
 
         function displayCards() {
             document.getElementById("player-hand").innerHTML = playerHand.map(card => `<div class='card'>${card.value}${card.suit}</div>`).join('');
+            document.getElementById("opponent-hand").innerHTML = opponentHand.map(card => `<div class='card'>${card.value}${card.suit}</div>`).join('');
             document.getElementById("community-cards").innerHTML = communityCards.map(card => `<div class='card'>${card.value}${card.suit}</div>`).join('');
         }
 
         function fold() {
             document.getElementById("result").innerText = "You folded!";
+        }
+
+        function placeBet() {
+            let bet = parseInt(document.getElementById("bet-amount").value);
+            if (bet > 0) {
+                pot += bet;
+                document.getElementById("pot").innerText = pot;
+            }
+        }
+
+        function determineWinner() {
+            let playerBestHand = evaluateHand([...playerHand, ...communityCards]);
+            let opponentBestHand = evaluateHand([...opponentHand, ...communityCards]);
+            
+            if (playerBestHand > opponentBestHand) {
+                document.getElementById("result").innerText = "🏆 You win!";
+            } else if (playerBestHand < opponentBestHand) {
+                document.getElementById("result").innerText = "😢 Opponent wins!";
+            } else {
+                document.getElementById("result").innerText = "🤝 It's a tie!";
+            }
+        }
+
+        function evaluateHand(cards) {
+            let values = cards.map(card => card.value);
+            let uniqueValues = [...new Set(values)];
+            let pairs = uniqueValues.filter(value => values.filter(v => v === value).length === 2).length;
+            let triples = uniqueValues.filter(value => values.filter(v => v === value).length === 3).length;
+            let quads = uniqueValues.filter(value => values.filter(v => v === value).length === 4).length;
+            
+            if (quads) return 7; // Four of a kind
+            if (triples && pairs) return 6; // Full house
+            if (triples) return 3; // Three of a kind
+            if (pairs === 2) return 2; // Two pair
+            if (pairs === 1) return 1; // One pair
+            return 0; // High card
         }
     </script>
 </body>
