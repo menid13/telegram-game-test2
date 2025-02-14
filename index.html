@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Poker Game</title>
+    <title>♠ Poker Game - Two Players ♣</title>
     <style>
         body {
             text-align: center;
             font-family: Arial, sans-serif;
-            background-color: #2c3e50;
+            background-color: #1e3d59;
             color: white;
         }
         .card {
@@ -40,6 +40,16 @@
         .button:hover {
             background-color: #219150;
         }
+        .icon-button {
+            font-size: 20px;
+            padding: 10px;
+            border-radius: 50%;
+            background-color: #ffcc00;
+            color: black;
+            border: none;
+            cursor: pointer;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+        }
         #game-container {
             background: rgba(255, 255, 255, 0.1);
             padding: 20px;
@@ -51,31 +61,34 @@
     </style>
 </head>
 <body>
-    <h1>♠ Poker Game ♣</h1>
+    <h1>♠ Poker Game - Two Players ♣</h1>
     <div id="game-container">
-        <p>Your Hand:</p>
-        <div id="player-hand"></div>
-        <p>Opponent's Hand:</p>
-        <div id="opponent-hand"></div>
+        <p>Current Turn: <span id="turn">Player 1</span></p>
+        <p>Player 1 (<span id="player1-name">Alice</span>)'s Hand:</p>
+        <div id="player1-hand"></div>
+        <p>Player 2 (<span id="player2-name">Bob</span>)'s Hand:</p>
+        <div id="player2-hand"></div>
         <p>Community Cards:</p>
         <div id="community-cards"></div>
         <br>
-        <p>Your Bet: <input type="number" id="bet-amount" value="10" min="1"> <button class="button" onclick="placeBet()">💰 Bet</button></p>
         <p>Pot: <span id="pot">0</span></p>
         <br>
-        <button class="button" onclick="dealInitialCards()">🎴 Deal First 3 Cards</button>
-        <button class="button" onclick="dealNextCards()" disabled>🎴 Deal Next 2 Cards</button>
-        <button class="button" onclick="determineWinner()">🏆 Show Winner</button>
-        <button class="button" onclick="fold()">🚪 Fold</button>
+        <button class="icon-button" onclick="dealInitialCards()">🎴</button>
+        <button class="icon-button" onclick="dealNextCard()" disabled>➕</button>
+        <button class="icon-button" onclick="switchTurn()">🔄</button>
+        <button class="icon-button" onclick="determineWinner()">🏆</button>
+        <button class="icon-button" onclick="fold()">🚪</button>
         <p id="result"></p>
     </div>
 
     <script>
         let deck = [];
-        let playerHand = [];
-        let opponentHand = [];
+        let player1Hand = [];
+        let player2Hand = [];
         let communityCards = [];
         let pot = 0;
+        let currentPlayer = 1;
+        let nextCardStep = 0;
 
         function createDeck() {
             let suits = ['♠', '♣', '♦', '♥'];
@@ -91,36 +104,39 @@
 
         function dealInitialCards() {
             createDeck();
-            playerHand = [deck.pop(), deck.pop()];
-            opponentHand = [deck.pop(), deck.pop()];
+            player1Hand = [deck.pop(), deck.pop()];
+            player2Hand = [deck.pop(), deck.pop()];
             communityCards = [deck.pop(), deck.pop(), deck.pop()];
             displayCards();
             document.getElementById("result").innerText = "";
-            document.querySelector("button[onclick='dealNextCards()']").disabled = false;
+            document.querySelector("button[onclick='dealNextCard()']").disabled = false;
+            nextCardStep = 0;
         }
 
-        function dealNextCards() {
-            communityCards.push(deck.pop(), deck.pop());
+        function dealNextCard() {
+            if (nextCardStep < 2) {
+                communityCards.push(deck.pop());
+                nextCardStep++;
+            }
+            if (nextCardStep === 2) {
+                document.querySelector("button[onclick='dealNextCard()']").disabled = true;
+            }
             displayCards();
-            document.querySelector("button[onclick='dealNextCards()']").disabled = true;
         }
 
         function displayCards() {
-            document.getElementById("player-hand").innerHTML = playerHand.map(card => `<div class='card'>${card.value}${card.suit}</div>`).join('');
-            document.getElementById("opponent-hand").innerHTML = opponentHand.map(card => `<div class='card'>${card.value}${card.suit}</div>`).join('');
+            document.getElementById("player1-hand").innerHTML = player1Hand.map(card => `<div class='card'>${card.value}${card.suit}</div>`).join('');
+            document.getElementById("player2-hand").innerHTML = player2Hand.map(card => `<div class='card'>${card.value}${card.suit}</div>`).join('');
             document.getElementById("community-cards").innerHTML = communityCards.map(card => `<div class='card'>${card.value}${card.suit}</div>`).join('');
         }
 
-        function fold() {
-            document.getElementById("result").innerText = "You folded!";
+        function switchTurn() {
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            document.getElementById("turn").innerText = `Player ${currentPlayer}`;
         }
 
-        function placeBet() {
-            let bet = parseInt(document.getElementById("bet-amount").value);
-            if (bet > 0) {
-                pot += bet;
-                document.getElementById("pot").innerText = pot;
-            }
+        function fold() {
+            document.getElementById("result").innerText = `Player ${currentPlayer} folded!`;
         }
     </script>
 </body>
