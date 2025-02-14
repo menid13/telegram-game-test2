@@ -3,27 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Telegram Game</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Simple Poker Game</title>
     <style>
-        body { text-align: center; padding: 20px; font-family: Arial, sans-serif; }
-        button { font-size: 18px; padding: 10px 20px; background: #0088cc; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        body { text-align: center; font-family: Arial, sans-serif; }
+        .card { display: inline-block; width: 50px; height: 70px; margin: 5px; border: 1px solid black; text-align: center; line-height: 70px; font-size: 20px; background: white; }
+        .button { padding: 10px 20px; font-size: 16px; margin: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <h1>My Telegram Game</h1>
-    <p>לחץ כדי להתחיל את המשחק!</p>
-    <button id="startGame">🎮 הפעל משחק</button>
+    <h1>Simple Poker Game</h1>
+    <p>Your Hand:</p>
+    <div id="player-hand"></div>
+    <p>Community Cards:</p>
+    <div id="community-cards"></div>
+    <br>
+    <button class="button" onclick="dealCards()">🎴 Deal Cards</button>
+    <button class="button" onclick="fold()">🚪 Fold</button>
+    <p id="result"></p>
 
     <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand(); // מוודא שהמשחק מוצג במסך מלא בתוך ה-WebView
+        let deck = [];
+        let playerHand = [];
+        let communityCards = [];
 
-        document.getElementById("startGame").addEventListener("click", function() {
-            window.location.href = "https://menid13.github.io/telegram-game-test/";
-        });
+        function createDeck() {
+            let suits = ['♠', '♣', '♦', '♥'];
+            let values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+            deck = [];
+            for (let suit of suits) {
+                for (let value of values) {
+                    deck.push({ value, suit });
+                }
+            }
+            deck = deck.sort(() => Math.random() - 0.5);
+        }
+
+        function dealCards() {
+            createDeck();
+            playerHand = [deck.pop(), deck.pop()];
+            communityCards = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
+            displayCards();
+            document.getElementById("result").innerText = "";
+        }
+
+        function displayCards() {
+            document.getElementById("player-hand").innerHTML = playerHand.map(card => `<div class='card'>${card.value}${card.suit}</div>`).join('');
+            document.getElementById("community-cards").innerHTML = communityCards.map(card => `<div class='card'>${card.value}${card.suit}</div>`).join('');
+        }
+
+        function fold() {
+            document.getElementById("result").innerText = "You folded!";
+        }
     </script>
-
 </body>
 </html>
